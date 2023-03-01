@@ -11,7 +11,7 @@ struct Sidebar: View {
     var searchText: String
     var dataModel: ReadingListModel
     @ObservedObject var navigationModel: NavigationModel
-    @State private var selectedBookId: Book.ID?
+    @State private var selectedBookIds: Set<Book.ID> = []
 
     var body: some View {
         List(selection: $navigationModel.selectedCategory) {
@@ -22,14 +22,14 @@ struct Sidebar: View {
             }
         }
         .navigationTitle("Categories")
-        .onChange(of: navigationModel.selectedBookId) { bookId in
-            selectedBookId = bookId
+        .onChange(of: navigationModel.selectedBookIds) { bookIds in
+            selectedBookIds = bookIds
         }
         .onChange(of: searchText) {
-            navigationModel.selectedBookId = $0.isEmpty ? selectedBookId : nil
+            navigationModel.selectedBookIds = $0.isEmpty ? selectedBookIds : []
         }
         .onChange(of: navigationModel.selectedCategory) { _ in
-            navigationModel.selectedBookId = nil
+            navigationModel.selectedBookIds = []
         }
         #if os(macOS)
         .frame(minWidth: 200, idealWidth: 200)

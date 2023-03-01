@@ -9,14 +9,10 @@ import SwiftUI
 
 struct UpdateReadingProgressButton: View {
     @ObservedObject var currentlyReading: CurrentlyReading
-    @Binding var progressEditor: ProgressEditorModel
+    @State private var progressEditor = ProgressEditorModel()
     
-    init(
-        book currentlyReading: CurrentlyReading,
-        progressEditor: Binding<ProgressEditorModel>
-    ) {
+    init(book currentlyReading: CurrentlyReading) {
         self.currentlyReading = currentlyReading
-        _progressEditor = progressEditor
     }
     
     var body: some View {
@@ -35,9 +31,7 @@ struct UpdateReadingProgressButton_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ForEach(ProgressEditorModel.mocks, id: \.self) { editor in
-                UpdateReadingProgressButton(
-                    book: .mock,
-                    progressEditor: .constant(editor))
+                UpdateReadingProgressButton(book: .mock)
             }
         }
     }

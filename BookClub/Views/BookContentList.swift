@@ -11,11 +11,10 @@ import SwiftUI
 struct BookContentList: View {
     @ObservedObject var dataModel: ReadingListModel
     @ObservedObject var navigationModel: NavigationModel
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.supportsMultipleWindows) private var supportsMultipleWindows
     @Environment(\.isSearching) private var isSearching
     private var searchText: String
-    #if os(macOS)
-    @Environment(\.openWindow) private var openWindow
-    #endif
     
     init(
         searchText: String,
@@ -28,48 +27,50 @@ struct BookContentList: View {
     }
     
     var body: some View {
-        // Workaround for a known issue where `NavigationSplitView` and
-        // `NavigationStack` fail to update when their contents are conditional.
-        // For more information, see the iOS 16 Release Notes and
-        // macOS 13 Release Notes. (91311311)"
-        ZStack {
+        Group {
             if let category = navigationModel.selectedCategory {
                 let items = dataModel.items(for: category, matching: searchText)
-                List(selection: $navigationModel.selectedBookId) {
+                List(selection: $navigationModel.selectedBookIds) {
                     ForEach(items) { currentlyReading in
                         NavigationLink(value: currentlyReading.id) {
                             BookCard(
                                 book: currentlyReading.book,
                                 progress: currentlyReading.currentProgress,
                                 isSelected: isSelected(for: currentlyReading.id))
-                            .contextMenu {
-                                BookContextMenu(
-                                    dataModel: dataModel,
-                                    bookId: currentlyReading.book.id)
-                            }
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .navigationTitle(category.title)
-                #if os(macOS)
-                .contextAction(forSelectionType: Book.ID.self) { books in
-                    books.forEach { openWindow(value: $0) }
+                .contextMenu(forSelectionType: Book.ID.self) { books in
+                    BookContextMenu(dataModel: dataModel, bookIds: books)
+                } primaryAction: { books in
+                    if supportsMultipleWindows {
+                        books.forEach { openWindow(value: $0) }
+                    } else {
+                        books.compactMap { dataModel[book: $0] }
+                            .forEach { $0.isFavorited = true }
+                    }
                 }
+                #if os(macOS)
                 .frame(minWidth: 240, idealWidth: 240)
                 .navigationSubtitle(subtitle(for: items.count))
                 #endif
+            } else {
+                Text("No Category Selected")
+                    .font(.title)
+                    .foregroundStyle(.tertiary)
             }
         }
         .onDisappear {
-            if navigationModel.selectedBookId == nil {
+            if navigationModel.selectedBookIds.isEmpty {
                 navigationModel.selectedCategory = nil
             }
         }
     }
     
     func isSelected(for bookID: Book.ID) -> Bool {
-        navigationModel.selectedBookId == bookID
+        navigationModel.selectedBookIds.contains(bookID)
     }
     
     #if os(macOS)

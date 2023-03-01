@@ -24,7 +24,7 @@ struct ProgressEditor: View {
         VStack(alignment: .leading) {
             HStack {
                 Slider(value: $model.progress, in: 0...1)
-                Text(model.progress, format: .percent)
+                Text(Int(model.progress * 100), format: .percent)
             }
             .padding(.bottom)
 
@@ -75,6 +75,7 @@ extension View {
         modifier(ProgressEditorModifier(book: book, model: model))
     }
 }
+
 private struct ProgressEditorModifier: ViewModifier {
     #if os(iOS)
     @Environment(\.horizontalSizeClass) var horizontalSizeClass

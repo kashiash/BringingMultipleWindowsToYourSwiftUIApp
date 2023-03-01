@@ -11,7 +11,6 @@ import SwiftUI
 struct BookDetailHeader: View {
     var dataModel: ReadingListModel
     @ObservedObject var currentlyReading: CurrentlyReading
-    @Binding var progressEditor: ProgressEditorModel
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -19,12 +18,10 @@ struct BookDetailHeader: View {
     
     init(
         dataModel: ReadingListModel,
-        book currentlyReading: CurrentlyReading,
-        progressEditor: Binding<ProgressEditorModel>
+        book currentlyReading: CurrentlyReading
     ) {
         self.dataModel = dataModel
         self.currentlyReading = currentlyReading
-        _progressEditor = progressEditor
     }
     
     var body: some View {
@@ -56,9 +53,7 @@ struct BookDetailHeader: View {
                                 .padding(.bottom, 5)
                             description
                             Spacer()
-                            ButtonFooter(
-                                currentlyReading: currentlyReading,
-                                progressEditor: $progressEditor)
+                            ButtonFooter(currentlyReading: currentlyReading)
                         }
                         .padding(.leading)
                     }
@@ -83,9 +78,7 @@ struct BookDetailHeader: View {
                                     dimensions[VerticalAlignment.center]
                                 }
                             if isCompactHorizonalSizeClass {
-                                ButtonFooter(
-                                    currentlyReading: currentlyReading,
-                                    progressEditor: $progressEditor)
+                                ButtonFooter(currentlyReading: currentlyReading)
                             }
                         }
                     }
@@ -154,7 +147,6 @@ extension VerticalAlignment {
 
 private struct ButtonFooter: View {
     var currentlyReading: CurrentlyReading
-    @Binding var progressEditor: ProgressEditorModel
     @State private var showBookDescription = false
     
     var body: some View {
@@ -167,9 +159,7 @@ private struct ButtonFooter: View {
                     "Read full description",
                     systemImage: "ellipsis.circle")
             }
-            UpdateReadingProgressButton(
-                book: currentlyReading,
-                progressEditor: $progressEditor)
+            UpdateReadingProgressButton(book: currentlyReading)
             MarkAsFinishedButton(book: currentlyReading)
         }
         .buttonStyle(.bordered)
@@ -204,8 +194,7 @@ struct BookDetailHeader_Previews: PreviewProvider {
             ForEach(ProgressEditorModel.mocks, id: \.self) { model in
                 BookDetailHeader(
                     dataModel: ReadingListModel(),
-                    book: CurrentlyReading.mock,
-                    progressEditor: .constant(model))
+                    book: CurrentlyReading.mock)
             }
         }
     }

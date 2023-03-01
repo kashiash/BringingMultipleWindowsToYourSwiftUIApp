@@ -11,7 +11,6 @@ import SwiftUI
 struct BookDetailContent: View {
     var dataModel: ReadingListModel
     @ObservedObject var book: CurrentlyReading
-    @State private var progressEditor = ProgressEditorModel()
     #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     #endif
@@ -19,32 +18,14 @@ struct BookDetailContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                BookDetailHeader(
-                    dataModel: dataModel,
-                    book: book,
-                    progressEditor: $progressEditor)
+                BookDetailHeader(dataModel: dataModel, book: book)
                 Divider()
                 BookDetailReadingHistory(progress: book.progress)
             }
             .scenePadding(scenePadding)
         }
         .frame(minWidth: 350, minHeight: 350)
-        .background(BookDetailBackground())
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                FavoriteButton(dataModel: dataModel, bookId: book.id)
-                ShareButton(dataModel: dataModel, bookId: book.id)
-            }
-            ToolbarItemGroup(placement: toolbarItemPlacement) {
-                Group {
-                    UpdateReadingProgressButton(
-                        book: book,
-                        progressEditor: $progressEditor)
-                    MarkAsFinishedButton(book: book)
-                }
-                .labelStyle(.iconOnly)
-            }
-        }
+        .background(.background)
     }
     
     var scenePadding: Edge.Set {
@@ -60,14 +41,6 @@ struct BookDetailContent: View {
         return verticalSizeClass == .compact
         #else
         return false
-        #endif
-    }
-    
-    var toolbarItemPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .bottomBar
-        #else
-        return .secondaryAction
         #endif
     }
 }

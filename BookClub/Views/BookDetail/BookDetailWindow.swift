@@ -3,8 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 Book detail view, which opens in its own presented window, displaying the
- book metadata, current reading progress,
- and notes.
+ book metadata, current reading progress, and notes.
 */
 
 import SwiftUI
@@ -14,16 +13,12 @@ struct BookDetailWindow: View {
     @Binding var bookId: Book.ID?
 
     var body: some View {
-        Group {
-            if let bookId = bookId, let book = dataModel[book: bookId] {
-                BookDetailContent(dataModel: dataModel, book: book)
-            } else {
-                Color.clear
-            }
-        }
-        .toolbar {
-            FavoriteButton(dataModel: dataModel, bookId: bookId)
-            ShareButton(dataModel: dataModel, bookId: bookId)
+        if let bookId = bookId, let book = dataModel[book: bookId] {
+            BookDetailContent(dataModel: dataModel, book: book)
+        } else {
+            Text("No Book Selected")
+                .font(.title)
+                .foregroundStyle(.tertiary)
         }
     }
 }

@@ -34,7 +34,7 @@ struct ReadingList: View {
         } detail: {
             BookDetail(
                 dataModel: dataModel,
-                bookId: navigationModel.selectedBookId)
+                bookIds: navigationModel.selectedBookIds)
         }
         .task {
             if let data = navigationData {
